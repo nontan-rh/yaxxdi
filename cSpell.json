@@ -1,0 +1,10 @@
+{
+    "version": "0.1",
+    "language": "en",
+    "dictionaries": ["cpp", "bash"],
+    "words": [
+      "YAXXDI"
+    ],
+    "ignoreRegExpList": ["-D[A-Z_]+", "-f[A-Za-z0-9_-]+", "-W[A-Za-z0-9_-]+"],
+    "flagWords": []
+  }
