@@ -38,3 +38,4 @@
 !/src/
 !/src/CMakeLists.txt
 !/src/**/*.cpp
+!/src/**/*.hpp
