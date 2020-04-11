@@ -42,14 +42,16 @@ void generate_source_intro(std::ostream &o, const Spec &spec) {
 }
 
 GeneratedFile generate_source_single_file(std::ostream &o, const Spec &spec,
+                                          const fs::path &base,
                                           const InputFile &file,
                                           size_t file_index) {
-    std::ifstream ifs(file.path);
+    const auto path = base / file.path;
+    std::ifstream ifs(path);
     if (!ifs) {
-        throw std::runtime_error("Could not open file: " + file.path);
+        throw std::runtime_error("Could not open file: " + path.string());
     }
 
-    auto size = fs::file_size(file.path);
+    auto size = fs::file_size(path);
 
     const std::string variable_name = file_index_to_variable_name(file_index);
 
@@ -113,13 +115,14 @@ GeneratedFile generate_source_single_file(std::ostream &o, const Spec &spec,
 }
 
 std::vector<GeneratedFile> generate_source_all_files(std::ostream &o,
-                                                     const Spec &spec) {
+                                                     const Spec &spec,
+                                                     const fs::path &base) {
     auto num_files = spec.input_files.size();
     std::vector<GeneratedFile> generated_files;
     for (size_t file_index = 0; file_index < num_files; file_index++) {
         const auto &file = spec.input_files[file_index];
         auto generated_file =
-            generate_source_single_file(o, spec, file, file_index);
+            generate_source_single_file(o, spec, base, file, file_index);
         generated_files.push_back(generated_file);
     }
 
@@ -161,9 +164,9 @@ void generate_source_api(std::ostream &o, const Spec &spec,
     o << "}" << std::endl;
 }
 
-void generate_source(std::ostream &o, const Spec &spec) {
+void generate_source(std::ostream &o, const Spec &spec, const fs::path &base) {
     generate_source_intro(o, spec);
-    auto generated_files = generate_source_all_files(o, spec);
+    auto generated_files = generate_source_all_files(o, spec, base);
     generate_source_table(o, spec, generated_files);
     generate_source_api(o, spec, generated_files);
 }
@@ -214,7 +217,7 @@ int main(int argc, char *argv[]) {
     {
         const auto source_path_str = args["output"].as<std::string>();
         if (source_path_str == "-") {
-            generate_source(std::cout, spec);
+            generate_source(std::cout, spec, base);
         } else {
             std::ofstream ofs(source_path_str);
             if (!ofs) {
@@ -223,7 +226,7 @@ int main(int argc, char *argv[]) {
                 return 1;
             }
 
-            generate_source(ofs, spec);
+            generate_source(ofs, spec, base);
         }
     }
 
